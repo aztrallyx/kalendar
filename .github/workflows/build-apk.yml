@@ -21,10 +21,17 @@ jobs:
           gradle-version: 8.5
 
       - name: Compilar APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          S=$(find . -name 'settings.gradle*' -not -path './.git/*' | head -n 1)
+          if [ -z "$S" ]; then
+            echo "No encontré settings.gradle.kts en el repo. Archivos:"; ls -R | head -50; exit 1
+          fi
+          DIR=$(dirname "$S")
+          echo "Proyecto en: $DIR"
+          cd "$DIR"
+          gradle assembleDebug --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
           name: Calendario-APK
-          path: app/build/outputs/apk/debug/*.apk
-          
+          path: "**/build/outputs/apk/debug/*.apk"
